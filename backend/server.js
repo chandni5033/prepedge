@@ -24,5 +24,6 @@ app.use('/api/analytics', require('./routes/analytics'));
 
 app.use(require('./middleware/errorHandler'));
 
+const logger = require('./utils/logger');
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on ${PORT}`));

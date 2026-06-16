@@ -1,16 +1,21 @@
-const bcrypt        = require('bcryptjs'); 
+const bcrypt        = require('bcryptjs');
 const User          = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const logger         = require('../utils/logger');
 
-exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
-  if (await User.findOne({ email }))
-    return res.status(400).json({ message: 'Email already registered' });
-  const user = await User.create({ name, email, password });
-  res.status(201).json({ token: generateToken(user._id), user: sanitize(user) });
+exports.register = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+    if (await User.findOne({ email }))
+      return res.status(400).json({ message: 'Email already registered' });
+    const user = await User.create({ name, email, password });
+    res.status(201).json({ token: generateToken(user._id), user: sanitize(user) });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -19,11 +24,9 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // User not found
     if (!user)
       return res.status(401).json({ message: 'Invalid credentials' });
 
-    // User registered via Google — no password stored
     if (!user.password)
       return res.status(401).json({ message: 'This account uses Google login. Please click "Continue with Google".' });
 
@@ -42,14 +45,17 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error' });
+    next(err);
   }
 };
 
-exports.getProfile = async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
-  res.json(user);
+exports.getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.googleCallback = (req, res) => {
@@ -57,6 +63,7 @@ exports.googleCallback = (req, res) => {
     const token = generateToken(req.user._id);
     res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
   } catch (err) {
+    logger.error('Google OAuth callback failed', { error: err.message });
     res.redirect(`${process.env.CLIENT_URL}/login?error=token_failed`);
   }
 };
@@ -65,8 +72,7 @@ function sanitize(u) {
   return { _id: u._id, name: u.name, email: u.email, profilePicture: u.profilePicture };
 }
 
-
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req, res, next) => {
   try {
     const { name } = req.body;
     if (!name || !name.trim())
@@ -81,12 +87,11 @@ exports.updateProfile = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
-    console.error('Update profile error:', err);
-    res.status(500).json({ message: 'Server error' });
+    next(err);
   }
 };
 
-exports.changePassword = async (req, res) => {
+exports.changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword)
@@ -103,18 +108,15 @@ exports.changePassword = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: 'Current password is incorrect' });
 
-    user.password = await bcrypt.hash(newPassword, 12);
+    user.password = newPassword; // pre('save') hook hashes this — do not hash manually here
     await user.save();
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    console.error('Change password error:', err);
-    res.status(500).json({ message: 'Server error' });
+    next(err);
   }
 };
 
-
-// Add to authController.js
-exports.setPassword = async (req, res) => {
+exports.setPassword = async (req, res, next) => {
   try {
     const { newPassword } = req.body;
     if (!newPassword || newPassword.length < 6)
@@ -124,10 +126,10 @@ exports.setPassword = async (req, res) => {
     if (user.password)
       return res.status(400).json({ message: 'Use change password instead' });
 
-    user.password = await bcrypt.hash(newPassword, 12);
+    user.password = newPassword; // pre('save') hook hashes this — do not hash manually here
     await user.save();
     res.json({ message: 'Password set successfully. You can now login with email.' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    next(err);
   }
 };
