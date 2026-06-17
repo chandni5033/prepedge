@@ -1,29 +1,9 @@
 require('dotenv').config();
-const express  = require('express');
-const cors     = require('cors');
-const helmet   = require('helmet');
-const passport = require('passport');
-const connectDB= require('./config/db');
-require('./config/passport');
+const connectDB = require('./config/db');
+const logger    = require('./utils/logger');
+const app       = require('./app');
 
-const app = express();
 connectDB();
 
-app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-app.use(express.json({ limit: '1mb' }));
-app.use(passport.initialize());
-
-// Rate limiter on AI-heavy routes
-const { apiLimiter } = require('./middleware/rateLimiter');
-app.use('/api/', apiLimiter);
-
-app.use('/api/auth',      require('./routes/auth'));
-app.use('/api/interview', require('./routes/interview'));
-app.use('/api/analytics', require('./routes/analytics'));
-
-app.use(require('./middleware/errorHandler'));
-
-const logger = require('./utils/logger');
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => logger.info(`Server running on ${PORT}`));
