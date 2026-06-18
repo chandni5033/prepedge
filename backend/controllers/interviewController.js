@@ -61,9 +61,10 @@ exports.finishInterview = async (req, res) => {
 
   // Generate final report
   const report = await aiService.generateReport({
-    category:   interview.category,
-    difficulty: interview.difficulty,
-    answers:    interview.answers,
+    category:       interview.category,
+    difficulty:     interview.difficulty,
+    answers:        interview.answers,
+    totalQuestions: interview.numQuestions,
   });
 
   const finalScore = report.overallScore;

@@ -11,7 +11,7 @@ const CATEGORY_MAP = {
 
 const chat = async (prompt) => {
   const response = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',   // free, very capable
+    model: 'llama-3.3-70b-versatile',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
     max_tokens: 2048,
@@ -76,21 +76,33 @@ Return ONLY valid JSON, no markdown:
   return parseJSON(text);
 };
 
-exports.generateReport = async ({ category, difficulty, answers }) => {
+exports.generateReport = async ({ category, difficulty, answers, totalQuestions }) => {
+  const total   = totalQuestions || answers.length;
+  const skipped = total - answers.length;
+
+  // Build summary — answered questions with their scores
   const summary = answers.map((a, i) =>
     `Q${i + 1}: ${a.questionText}\nScore: ${a.score}/10\nWeaknesses: ${a.weaknesses?.join(', ')}`
   ).join('\n\n');
+
+  const skippedNote = skipped > 0
+    ? `\n\nNOTE: The candidate did not attempt ${skipped} of ${total} questions (left unanswered). These should be treated as 0/10 and reflected heavily in the overall score and weaknesses.`
+    : '';
 
   const prompt = `
 You are a senior engineering hiring manager. Generate a performance report based on these interview results.
 
 Interview: ${CATEGORY_MAP[category]} — ${difficulty}
+Total questions: ${total}
+Questions attempted: ${answers.length}
 Results:
-${summary}
+${summary}${skippedNote}
+
+The overallScore must account for ALL ${total} questions, including unanswered ones (treat each as 0/10).
 
 Return ONLY valid JSON, no markdown:
 {
-  "overallScore": <average 0-10>,
+  "overallScore": <weighted average across all ${total} questions 0-10>,
   "technicalScore": <0-10>,
   "communicationScore": <0-10>,
   "strengths": ["top strength 1", "top strength 2", "top strength 3"],
