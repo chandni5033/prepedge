@@ -13,6 +13,8 @@ import Feedback       from './pages/Feedback';
 import Analytics      from './pages/Analytics';
 import History        from './pages/History';
 import Profile        from './pages/Profile';
+import Practice from "./pages/Practice";
+import Resources from "./pages/Resources";
 
 export default function App() {
   return (
@@ -30,6 +32,8 @@ export default function App() {
           <Route path="/analytics"     element={<ProtectedRoute><Analytics/></ProtectedRoute>}/>
           <Route path="/history"       element={<ProtectedRoute><History/></ProtectedRoute>}/>
           <Route path="/profile"       element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+          <Route path="/practice"      element={<ProtectedRoute><Practice /></ProtectedRoute>} />
+          <Route path="/resources"     element={<ProtectedRoute><Resources /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

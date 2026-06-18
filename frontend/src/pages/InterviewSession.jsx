@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import CodeAnswerEditor from '../components/CodeAnswerEditor';
 
 export default function InterviewSession() {
   const { id }     = useParams();
@@ -9,6 +10,7 @@ export default function InterviewSession() {
   const [questions, setQuestions] = useState([]);
   const [current,   setCurrent  ] = useState(0);
   const [answer,    setAnswer   ] = useState('');
+  const [language,  setLanguage ] = useState('cpp');
   const [feedback,  setFeedback ] = useState(null);
   const [loading,   setLoading  ] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -20,16 +22,21 @@ export default function InterviewSession() {
     });
   }, [id]);
 
+  const isCodeQuestion = interview?.category === 'dsa';
+
   const handleSubmitAnswer = async () => {
     if (!answer.trim()) return;
     setLoading(true);
     try {
       const q = questions[current];
+      const finalAnswer = isCodeQuestion
+        ? `// Language: ${language}\n\n${answer}`
+        : answer;
       const { data } = await api.post('/interview/submit-answer', {
         interviewId:  id,
         questionId:   q._id,
         questionText: q.questionText,
-        userAnswer:   answer,
+        userAnswer:   finalAnswer,
       });
       setFeedback(data.feedback);
       setSubmitted(true);
@@ -87,13 +94,22 @@ export default function InterviewSession() {
 
       {/* Answer area */}
       {!submitted && (
-        <textarea
-          value={answer}
-          onChange={e => setAnswer(e.target.value)}
-          rows={8}
-          placeholder="Type your answer here…"
-          className="w-full border rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
-        />
+        isCodeQuestion ? (
+          <CodeAnswerEditor
+            value={answer}
+            onChange={setAnswer}
+            language={language}
+            onLanguageChange={setLanguage}
+          />
+        ) : (
+          <textarea
+            value={answer}
+            onChange={e => setAnswer(e.target.value)}
+            rows={8}
+            placeholder="Type your answer here…"
+            className="w-full border rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          />
+        )
       )}
 
       {/* Feedback */}
