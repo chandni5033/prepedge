@@ -18,11 +18,16 @@ export default function Dashboard() {
   const [data, setData]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [roleAttempts, setRoleAttempts] = useState([]);
 
   useEffect(() => {
     api.get('/analytics/dashboard')
       .then(r => setData(r.data))
       .finally(() => setLoading(false));
+
+    api.get('/roles/attempts')
+      .then(r => setRoleAttempts(r.data.attempts))
+      .catch(() => {});
   }, []);
 
   if (loading) return (
@@ -81,6 +86,55 @@ export default function Dashboard() {
               </Link>
             </div>
           </div>
+
+          {/* ── Role-based Interview Loops ── */}
+          {roleAttempts.length > 0 && (
+            <div className="bg-white rounded-xl border p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-gray-800">🎯 Role-based Interview Loops</h2>
+                <Link to="/roles" className="text-sm text-indigo-600 hover:underline">Start another</Link>
+              </div>
+              <div className="space-y-3">
+                {roleAttempts.map(attempt => {
+                  const completedRounds = attempt.rounds?.filter(r => r.status === 'completed').length || 0;
+                  const totalRounds     = attempt.rounds?.length || 0;
+                  const isDone          = attempt.status === 'completed';
+                  const linkTo          = isDone
+                    ? `/roles/attempts/${attempt._id}/report`
+                    : `/roles/attempts/${attempt._id}`;
+
+                  return (
+                    <Link
+                      key={attempt._id}
+                      to={linkTo}
+                      className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-gray-800">{attempt.roleName}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {isDone
+                            ? `Completed · ${new Date(attempt.completedAt).toLocaleDateString()}`
+                            : `Round ${completedRounds + 1} of ${totalRounds} · In Progress`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {isDone ? (
+                          <span className="text-sm font-semibold text-indigo-600">
+                            {attempt.combinedReport?.overallScore}/10
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-yellow-700 bg-yellow-50 px-2.5 py-1 rounded-full">
+                            {completedRounds}/{totalRounds} rounds
+                          </span>
+                        )}
+                        <span className="text-gray-300 text-sm">→</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* KPI Cards */}
           {data && !data.empty ? (

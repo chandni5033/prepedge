@@ -82,12 +82,31 @@ export default function RoleReport() {
           <p className="text-sm font-semibold text-gray-700 mb-3">Round-by-round breakdown</p>
           <div className="space-y-2">
             {report.perRoundScores.map((r, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">{r.label}</span>
-                <span className="font-medium text-gray-900">{r.score}/10</span>
-              </div>
+              r.interviewId ? (
+                <Link
+                  key={i}
+                  to={`/feedback/${r.interviewId}`}
+                  className="flex items-center justify-between text-sm p-2 -mx-2 rounded-lg hover:bg-gray-50 transition"
+                >
+                  <span className="text-gray-600">{r.label}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900">{r.score}/10</span>
+                    <span className="text-gray-300">→</span>
+                  </span>
+                </Link>
+              ) : (
+                <div key={i} className="flex items-center justify-between text-sm p-2 -mx-2">
+                  <span className="text-gray-600">{r.label}</span>
+                  <span className="font-medium text-gray-900">{r.score}/10</span>
+                </div>
+              )
             ))}
           </div>
+          {!report.perRoundScores.some(r => r.interviewId) && (
+            <p className="text-xs text-gray-400 mt-3">
+              Per-round detail links aren't available for this older report.
+            </p>
+          )}
         </div>
 
         {/* Strengths / weaknesses / recommendations */}

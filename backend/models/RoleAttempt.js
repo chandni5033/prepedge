@@ -11,7 +11,7 @@ const roundProgressSchema = new mongoose.Schema({
 
 const combinedReportSchema = new mongoose.Schema({
   overallScore:       Number,
-  perRoundScores:     [{ label: String, score: Number }],
+  perRoundScores:     [{ label: String, score: Number, interviewId: { type: mongoose.Schema.Types.ObjectId, ref: 'Interview' } }],
   strengths:          [String],
   weaknesses:         [String],
   recommendations:    [String],

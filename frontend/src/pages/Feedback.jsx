@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, ResponsiveContainer, Tooltip,
@@ -447,34 +447,58 @@ export default function Feedback() {
   );
 }
 
+
 // ── Role-mode CTA row: next round, or combined report if this was the last one ──
 function RoleModeCTAs({ roleAttempt, roleAttemptId }) {
+  const navigate = useNavigate();
+  const [finishing, setFinishing] = useState(false);
+  const [finishError, setFinishError] = useState('');
+
   const nextRound = roleAttempt.rounds.find(r => r.status === 'unlocked');
   const allDone   = roleAttempt.rounds.every(r => r.status === 'completed');
 
+  const handleViewCombinedReport = async () => {
+    setFinishing(true);
+    setFinishError('');
+    try {
+      await api.post(`/roles/attempts/${roleAttemptId}/finish`);
+      navigate(`/roles/attempts/${roleAttemptId}/report`);
+    } catch (err) {
+      setFinishError(err.response?.data?.message || 'Failed to generate combined report.');
+    } finally {
+      setFinishing(false);
+    }
+  };
+
   return (
-    <div className="flex gap-3">
-      <Link
-        to={`/roles/attempts/${roleAttemptId}`}
-        className="flex-1 text-center border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 text-sm"
-      >
-        ← Round Map
-      </Link>
-      {allDone ? (
-        <Link
-          to={`/roles/attempts/${roleAttemptId}/report`}
-          className="flex-1 text-center bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 text-sm"
-        >
-          View Combined Report →
-        </Link>
-      ) : nextRound ? (
+    <div className="space-y-2">
+      {finishError && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{finishError}</p>
+      )}
+      <div className="flex gap-3">
         <Link
           to={`/roles/attempts/${roleAttemptId}`}
-          className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 text-sm"
+          className="flex-1 text-center border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 text-sm"
         >
-          Continue to {nextRound.label} →
+          ← Round Map
         </Link>
-      ) : null}
+        {allDone ? (
+          <button
+            onClick={handleViewCombinedReport}
+            disabled={finishing}
+            className="flex-1 text-center bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 text-sm disabled:opacity-50"
+          >
+            {finishing ? 'Generating report…' : 'View Combined Report →'}
+          </button>
+        ) : nextRound ? (
+          <Link
+            to={`/roles/attempts/${roleAttemptId}`}
+            className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 text-sm"
+          >
+            Continue to {nextRound.label} →
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -495,3 +519,6 @@ function buildAssessment(report, category, score) {
   }
   return `You are building your foundation in ${cat}. You displayed some understanding of ${top}, but ${weak} needs more attention. Prioritise ${rec} and attempt more practice interviews to build confidence.`;
 }
+
+
+

@@ -64,7 +64,7 @@ exports.listMyAttempts = async (req, res, next) => {
   try {
     const attempts = await RoleAttempt.find({ userId: req.user.id })
       .sort({ createdAt: -1 })
-      .select('roleName status combinedReport.overallScore startedAt completedAt');
+      .select('roleName status combinedReport.overallScore rounds startedAt completedAt');
     res.json({ attempts });
   } catch (err) {
     next(err);
@@ -175,7 +175,7 @@ exports.finishRoleAttempt = async (req, res, next) => {
 
     const perRoundScores = attempt.rounds.map(r => {
       const iv = interviews.find(i => i._id.toString() === r.interviewId.toString());
-      return { label: r.label, score: iv?.finalScore ?? 0 };
+      return { label: r.label, score: iv?.finalScore ?? 0, interviewId: r.interviewId };
     });
 
     const overallScore = Number(
