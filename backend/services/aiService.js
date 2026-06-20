@@ -163,3 +163,40 @@ Return ONLY valid JSON, no markdown:
   const text = await chat(prompt);
   return parseJSON(text);
 };
+
+// Generates a 15-question mixed-difficulty multiple-choice quiz for a topic.
+exports.generateQuiz = async ({ category }) => {
+  const prompt = `
+You are a technical quiz designer creating a practice quiz for: ${CATEGORY_MAP[category]}.
+
+Generate exactly 15 multiple-choice questions with a MIXED difficulty spread:
+- Approximately 5 easy, 6 medium, 4 hard questions (don't group them by difficulty in the array order — interleave them).
+- Each question must have exactly 4 options, only one correct.
+- Cover a broad range of subtopics within ${CATEGORY_MAP[category]}, don't repeat the same concept twice.
+- Include a short explanation (1-2 sentences) for why the correct answer is correct.
+
+Return ONLY a valid JSON array, no markdown, no explanation outside the JSON:
+[
+  {
+    "questionText": "your question here",
+    "options": ["option A", "option B", "option C", "option D"],
+    "correctIndex": <0-3, index of the correct option>,
+    "difficulty": "easy" | "medium" | "hard",
+    "explanation": "short explanation of the correct answer"
+  }
+]`;
+
+  const text = await chat(prompt);
+  const questions = parseJSON(text);
+
+  // Defensive validation — reject malformed AI output rather than silently
+  // storing broken quiz data (e.g. an option count mismatch breaks the UI).
+  questions.forEach((q, i) => {
+    if (!Array.isArray(q.options) || q.options.length !== 4)
+      throw new Error(`Quiz question ${i + 1} does not have exactly 4 options`);
+    if (typeof q.correctIndex !== 'number' || q.correctIndex < 0 || q.correctIndex > 3)
+      throw new Error(`Quiz question ${i + 1} has an invalid correctIndex`);
+  });
+
+  return questions;
+};

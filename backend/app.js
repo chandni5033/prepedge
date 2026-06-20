@@ -20,6 +20,8 @@ app.use('/api/interview', require('./routes/interview'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/code',      require('./routes/code'));
 app.use('/api/roles',     require('./routes/role'));
+app.use('/api/resources', require('./routes/resource'));
+app.use('/api/quiz',      require('./routes/quiz'));
 
 app.use(require('./middleware/errorHandler'));
 

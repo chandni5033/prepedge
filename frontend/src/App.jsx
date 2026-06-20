@@ -16,6 +16,11 @@ import Profile        from './pages/Profile';
 import SelectRole     from './pages/SelectRole';
 import RoleRoundMap   from './pages/RoleRoundMap';
 import RoleReport     from './pages/RoleReport';
+import Resources      from './pages/Resources';
+import QuizTopicSelect from './pages/QuizTopicSelect';
+import QuizSession    from './pages/QuizSession';
+import QuizResults    from './pages/QuizResults';
+import QuizHistory    from './pages/QuizHistory';
 
 export default function App() {
   return (
@@ -36,6 +41,11 @@ export default function App() {
           <Route path="/roles"                          element={<ProtectedRoute><SelectRole/></ProtectedRoute>}/>
           <Route path="/roles/attempts/:attemptId"        element={<ProtectedRoute><RoleRoundMap/></ProtectedRoute>}/>
           <Route path="/roles/attempts/:attemptId/report" element={<ProtectedRoute><RoleReport/></ProtectedRoute>}/>
+          <Route path="/resources"             element={<ProtectedRoute><Resources/></ProtectedRoute>}/>
+          <Route path="/practice"              element={<ProtectedRoute><QuizTopicSelect/></ProtectedRoute>}/>
+          <Route path="/practice/history"      element={<ProtectedRoute><QuizHistory/></ProtectedRoute>}/>
+          <Route path="/practice/:id"          element={<ProtectedRoute><QuizSession/></ProtectedRoute>}/>
+          <Route path="/practice/:id/results"  element={<ProtectedRoute><QuizResults/></ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
