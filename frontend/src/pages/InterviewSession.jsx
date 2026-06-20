@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import CodeAnswerEditor from '../components/CodeAnswerEditor';
 
@@ -103,6 +103,9 @@ function ExitDialog({ answeredCount, onFinishPartial, onExit, onCancel, loading 
 export default function InterviewSession() {
   const { id }   = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roleAttemptId = searchParams.get('roleAttempt');
+  const roundOrder     = searchParams.get('round');
 
   const [interview,   setInterview  ] = useState(null);
   const [questions,   setQuestions  ] = useState([]);
@@ -186,14 +189,26 @@ export default function InterviewSession() {
     setLoading(true);
     try {
       await api.post('/interview/finish', { interviewId: id });
-      navigate(`/feedback/${id}`);
+
+      if (roleAttemptId && roundOrder) {
+        // Part of a role-based interview loop — mark the round complete and
+        // unlock the next one, THEN show this round's own report (reusing
+        // the existing Feedback page) before the user heads back to the
+        // round map. Carrying the role context lets Feedback show a
+        // "Continue to next round →" CTA instead of just "Start New Interview".
+        await api.post(`/roles/attempts/${roleAttemptId}/rounds/${roundOrder}/complete`);
+        navigate(`/feedback/${id}?roleAttempt=${roleAttemptId}&round=${roundOrder}`);
+      } else {
+        navigate(`/feedback/${id}`);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   // ── Exit without saving ──
-  const handleExitWithoutSaving = () => navigate('/dashboard');
+  const handleExitWithoutSaving = () =>
+    navigate(roleAttemptId ? `/roles/attempts/${roleAttemptId}` : '/dashboard');
 
   if (!interview) return <p className="p-8">Loading interview…</p>;
 

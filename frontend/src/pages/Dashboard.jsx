@@ -66,12 +66,20 @@ export default function Dashboard() {
               <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name?.split(' ')[0]} 👋</h1>
               <p className="text-gray-500 text-sm mt-0.5">Ready for today's interview practice?</p>
             </div>
-            <Link
-              to="/interview/new"
-              className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700"
-            >
-              + New Interview
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                to="/roles"
+                className="border-2 border-indigo-200 text-indigo-700 px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-50"
+              >
+                🎯 Role-based Interview
+              </Link>
+              <Link
+                to="/interview/new"
+                className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700"
+              >
+                + New Interview
+              </Link>
+            </div>
           </div>
 
           {/* KPI Cards */}
@@ -136,12 +144,20 @@ export default function Dashboard() {
               <div className="text-5xl mb-4">🎯</div>
               <h2 className="text-lg font-semibold text-gray-800 mb-2">No interviews yet</h2>
               <p className="text-gray-400 text-sm mb-6">Start your first mock interview to see your stats here.</p>
-              <Link
-                to="/interview/new"
-                className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700"
-              >
-                Start First Interview
-              </Link>
+              <div className="flex gap-3 justify-center">
+                <Link
+                  to="/interview/new"
+                  className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700"
+                >
+                  Start First Interview
+                </Link>
+                <Link
+                  to="/roles"
+                  className="border-2 border-indigo-200 text-indigo-700 px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-50"
+                >
+                  Try Role Mode
+                </Link>
+              </div>
             </div>
           )}
         </div>

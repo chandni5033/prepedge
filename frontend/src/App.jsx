@@ -13,8 +13,9 @@ import Feedback       from './pages/Feedback';
 import Analytics      from './pages/Analytics';
 import History        from './pages/History';
 import Profile        from './pages/Profile';
-import Practice from "./pages/Practice";
-import Resources from "./pages/Resources";
+import SelectRole     from './pages/SelectRole';
+import RoleRoundMap   from './pages/RoleRoundMap';
+import RoleReport     from './pages/RoleReport';
 
 export default function App() {
   return (
@@ -32,8 +33,9 @@ export default function App() {
           <Route path="/analytics"     element={<ProtectedRoute><Analytics/></ProtectedRoute>}/>
           <Route path="/history"       element={<ProtectedRoute><History/></ProtectedRoute>}/>
           <Route path="/profile"       element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
-          <Route path="/practice"      element={<ProtectedRoute><Practice /></ProtectedRoute>} />
-          <Route path="/resources"     element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+          <Route path="/roles"                          element={<ProtectedRoute><SelectRole/></ProtectedRoute>}/>
+          <Route path="/roles/attempts/:attemptId"        element={<ProtectedRoute><RoleRoundMap/></ProtectedRoute>}/>
+          <Route path="/roles/attempts/:attemptId/report" element={<ProtectedRoute><RoleReport/></ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const CATEGORIES  = ['dsa', 'webdev', 'ml', 'cs'];
+const CATEGORIES  = ['dsa', 'webdev', 'ml', 'cs' , 'hr'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 exports.createInterview = Joi.object({

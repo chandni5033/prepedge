@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
-  category:      { type: String, enum: ['dsa', 'webdev', 'ml', 'cs'], required: true },
+  category:      { type: String, enum: ['dsa', 'webdev', 'ml', 'cs', 'hr'], required: true },
   difficulty:    { type: String, enum: ['easy', 'medium', 'hard'], required: true },
   questionText:  { type: String, required: true },
   expectedTopics:[String],

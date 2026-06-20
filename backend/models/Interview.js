@@ -23,7 +23,7 @@ const reportSchema = new mongoose.Schema({
 
 const interviewSchema = new mongoose.Schema({
   userId:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  category:   { type: String, enum: ['dsa', 'webdev', 'ml', 'cs'], required: true },
+  category:   { type: String, enum: ['dsa', 'webdev', 'ml', 'cs', 'hr'], required: true },
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], required: true },
   mode:       { type: String, enum: ['text', 'voice'], default: 'text' },
   numQuestions:{ type: Number, default: 5 },

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, ResponsiveContainer, Tooltip,
@@ -103,10 +103,15 @@ function SubScoreBar({ label, value, color }) {
 // ── Main ───────────────────────────────────────────────────────────────────
 export default function Feedback() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const roleAttemptId = searchParams.get('roleAttempt');
+  const roundOrder     = searchParams.get('round');
+
   const [interview,  setInterview ] = useState(null);
   const [prevScore,  setPrevScore ] = useState(null);
   const [loading,    setLoading   ] = useState(true);
   const [expanded,   setExpanded  ] = useState({});
+  const [roleAttempt,setRoleAttempt] = useState(null);
 
   useEffect(() => {
     api.get(`/interview/${id}`)
@@ -121,6 +126,15 @@ export default function Feedback() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  // If this report is part of a role-based interview loop, fetch the
+  // attempt so we know whether to offer "Next round" or "View combined report".
+  useEffect(() => {
+    if (!roleAttemptId) return;
+    api.get(`/roles/attempts/${roleAttemptId}`)
+      .then(r => setRoleAttempt(r.data.attempt))
+      .catch(() => {});
+  }, [roleAttemptId]);
 
   const toggleQ = (i) => setExpanded(e => ({ ...e, [i]: !e[i] }));
 
@@ -152,8 +166,15 @@ export default function Feedback() {
     <div className="min-h-screen bg-gray-50">
       {/* Nav */}
       <nav className="bg-white border-b px-8 py-4 flex items-center justify-between sticky top-0 z-10">
-        <Link to="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Dashboard</Link>
-        <span className="text-sm font-semibold text-gray-700">Interview Report</span>
+        <Link
+          to={roleAttemptId ? `/roles/attempts/${roleAttemptId}` : '/dashboard'}
+          className="text-sm text-gray-500 hover:text-gray-700"
+        >
+          ← {roleAttemptId ? 'Round Map' : 'Dashboard'}
+        </Link>
+        <span className="text-sm font-semibold text-gray-700">
+          {roleAttempt ? `${roleAttempt.roleName} — Round ${roundOrder} Report` : 'Interview Report'}
+        </span>
         <Link to="/interview/new"
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
           Practice Again
@@ -402,22 +423,58 @@ export default function Feedback() {
         </div>
 
         {/* ── Bottom CTAs ── */}
-        <div className="flex gap-3">
-          <Link to="/interview/new"
-            className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 text-sm">
-            Start New Interview
-          </Link>
-          <Link to="/analytics"
-            className="flex-1 text-center border border-indigo-200 text-indigo-600 py-3 rounded-xl font-medium hover:bg-indigo-50 text-sm">
-            View Analytics
-          </Link>
-          <Link to="/history"
-            className="flex-1 text-center border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 text-sm">
-            All Interviews
-          </Link>
-        </div>
+        {roleAttempt ? (
+          <RoleModeCTAs roleAttempt={roleAttempt} roleAttemptId={roleAttemptId} />
+        ) : (
+          <div className="flex gap-3">
+            <Link to="/interview/new"
+              className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 text-sm">
+              Start New Interview
+            </Link>
+            <Link to="/analytics"
+              className="flex-1 text-center border border-indigo-200 text-indigo-600 py-3 rounded-xl font-medium hover:bg-indigo-50 text-sm">
+              View Analytics
+            </Link>
+            <Link to="/history"
+              className="flex-1 text-center border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 text-sm">
+              All Interviews
+            </Link>
+          </div>
+        )}
 
       </div>
+    </div>
+  );
+}
+
+// ── Role-mode CTA row: next round, or combined report if this was the last one ──
+function RoleModeCTAs({ roleAttempt, roleAttemptId }) {
+  const nextRound = roleAttempt.rounds.find(r => r.status === 'unlocked');
+  const allDone   = roleAttempt.rounds.every(r => r.status === 'completed');
+
+  return (
+    <div className="flex gap-3">
+      <Link
+        to={`/roles/attempts/${roleAttemptId}`}
+        className="flex-1 text-center border border-gray-200 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 text-sm"
+      >
+        ← Round Map
+      </Link>
+      {allDone ? (
+        <Link
+          to={`/roles/attempts/${roleAttemptId}/report`}
+          className="flex-1 text-center bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 text-sm"
+        >
+          View Combined Report →
+        </Link>
+      ) : nextRound ? (
+        <Link
+          to={`/roles/attempts/${roleAttemptId}`}
+          className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-xl font-medium hover:bg-indigo-700 text-sm"
+        >
+          Continue to {nextRound.label} →
+        </Link>
+      ) : null}
     </div>
   );
 }
