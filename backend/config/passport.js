@@ -2,8 +2,7 @@ const passport = require('passport');
 const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const User = require('../models/User');
 
-console.log("CLIENT ID:", process.env.GOOGLE_CLIENT_ID);
-console.log("CALLBACK URL:", "https://prepedge-lek5.onrender.com/api/auth/google/callback");
+
 
 passport.use(new GoogleStrategy({
   clientID:     process.env.GOOGLE_CLIENT_ID,
