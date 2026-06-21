@@ -127,8 +127,7 @@ export default function Feedback() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // If this report is part of a role-based interview loop, fetch the
-  // attempt so we know whether to offer "Next round" or "View combined report".
+  
   useEffect(() => {
     if (!roleAttemptId) return;
     api.get(`/roles/attempts/${roleAttemptId}`)

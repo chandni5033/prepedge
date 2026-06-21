@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 const quizQuestionSchema = new mongoose.Schema({
   questionText:  { type: String, required: true },
-  options:       { type: [String], required: true }, // exactly 4 options
-  correctIndex:  { type: Number, required: true },    // 0-3
+  options:       { type: [String], required: true }, 
+  correctIndex:  { type: Number, required: true },    
   difficulty:    { type: String, enum: ['easy', 'medium', 'hard'], required: true },
-  explanation:   { type: String },                    // shown after answering
-  userAnswerIndex: { type: Number, default: null },    // null = unanswered
+  explanation:   { type: String },                   
+  userAnswerIndex: { type: Number, default: null },    
 }, { _id: true });
 
 const quizSchema = new mongoose.Schema({
@@ -14,7 +14,7 @@ const quizSchema = new mongoose.Schema({
   category:   { type: String, enum: ['dsa', 'webdev', 'ml', 'cs'], required: true },
   questions:  [quizQuestionSchema],
   status:     { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' },
-  score:      { type: Number, default: null },         // out of 15, set on completion
+  score:      { type: Number, default: null },         
   completedAt:{ type: Date },
 }, { timestamps: true });
 

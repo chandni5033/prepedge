@@ -24,13 +24,12 @@ export default function QuizSession() {
 
   const [quizMeta, setQuizMeta] = useState(null);
   const [current,  setCurrent ] = useState(0);
-  // answers: questionId -> selectedIndex (purely local + auto-saved, no correctness known yet)
   const [answers,  setAnswers ] = useState({});
   const [saving,   setSaving  ] = useState(false);
   const [finishing,setFinishing] = useState(false);
   const [confirmFinish, setConfirmFinish] = useState(false);
 
-  const totalBudget = SECONDS_PER_QUESTION * 15; // 7.5 min for the whole quiz
+  const totalBudget = SECONDS_PER_QUESTION * 15; 
   const [secondsLeft, setSecondsLeft] = useState(totalBudget);
   const timerRef = useRef(null);
 
@@ -71,10 +70,9 @@ export default function QuizSession() {
 
   const goToQuestion = (index) => setCurrent(index);
 
-  // Selecting an option immediately auto-saves it — no separate submit click.
-  // Re-selecting on an already-answered question just overwrites the saved choice.
+  
   const handleSelect = async (index) => {
-    setAnswers(prev => ({ ...prev, [q._id]: index })); // optimistic update
+    setAnswers(prev => ({ ...prev, [q._id]: index })); 
     setSaving(true);
     try {
       await api.post(`/quiz/${id}/answer`, {

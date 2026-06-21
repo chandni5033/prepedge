@@ -1,4 +1,3 @@
-// Seed script for curated learning resources.
 // Usage: node scripts/seedResources.js
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -39,7 +38,7 @@ async function seed() {
   await mongoose.connect(process.env.MONGODB_URI);
   logger.info('Connected to MongoDB for seeding resources');
 
-  await Resource.deleteMany({}); // simple full replace — list is small and curated
+  await Resource.deleteMany({}); 
   await Resource.insertMany(RESOURCES);
 
   logger.info(`Seeded ${RESOURCES.length} resources`);

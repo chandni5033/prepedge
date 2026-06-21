@@ -174,11 +174,11 @@ export default function InterviewSession() {
         interviewId:  id,
         questionId:   q._id,
         questionText: q.questionText,
-        userAnswer:   '', // empty — AI will score 0 and note "no answer provided"
+        userAnswer:   '', 
       });
       setFeedback(data.feedback);
       setSubmitted(true);
-      // Don't increment answeredCount — skips don't count as answered
+      
     } finally {
       setLoading(false);
     }
@@ -191,11 +191,6 @@ export default function InterviewSession() {
       await api.post('/interview/finish', { interviewId: id });
 
       if (roleAttemptId && roundOrder) {
-        // Part of a role-based interview loop — mark the round complete and
-        // unlock the next one, THEN show this round's own report (reusing
-        // the existing Feedback page) before the user heads back to the
-        // round map. Carrying the role context lets Feedback show a
-        // "Continue to next round →" CTA instead of just "Start New Interview".
         await api.post(`/roles/attempts/${roleAttemptId}/rounds/${roundOrder}/complete`);
         navigate(`/feedback/${id}?roleAttempt=${roleAttemptId}&round=${roundOrder}`);
       } else {

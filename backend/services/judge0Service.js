@@ -9,7 +9,7 @@ const headers = {
   'X-RapidAPI-Host':   'judge0-ce.p.rapidapi.com',
 };
 
-// Judge0 CE language IDs — matching CodeAnswerEditor's language options
+
 const LANGUAGE_IDS = {
   cpp:        54,  // C++ (GCC 9.2.0)
   python:     71,  // Python (3.8.1)
@@ -25,10 +25,7 @@ const STATUS = {
   WRONG:      4,
 };
 
-/**
- * Submit code to Judge0 and poll until a result is ready.
- * Returns the full submission result object.
- */
+
 exports.runCode = async ({ source_code, language, stdin = '', expected_output = '' }) => {
   const language_id = LANGUAGE_IDS[language];
   if (!language_id) throw Object.assign(new Error(`Unsupported language: ${language}`), { statusCode: 400 });
@@ -41,8 +38,8 @@ exports.runCode = async ({ source_code, language, stdin = '', expected_output = 
       language_id,
       stdin:           stdin           || null,
       expected_output: expected_output || null,
-      cpu_time_limit:  5,   // seconds — generous for interview-style problems
-      memory_limit:    128000, // KB
+      cpu_time_limit:  5,   
+      memory_limit:    128000, 
     },
     { headers }
   );
@@ -50,7 +47,7 @@ exports.runCode = async ({ source_code, language, stdin = '', expected_output = 
   const token = submission.token;
   if (!token) throw new Error('Judge0 did not return a submission token');
 
-  // 2. Poll until status is no longer In Queue (1) or Processing (2)
+  
   const MAX_POLLS = 20;
   const POLL_INTERVAL_MS = 1000;
 
@@ -65,10 +62,10 @@ exports.runCode = async ({ source_code, language, stdin = '', expected_output = 
     const statusId = result.status?.id;
 
     if (statusId === STATUS.IN_QUEUE || statusId === STATUS.PROCESSING) {
-      continue; // still running — keep polling
+      continue; 
     }
 
-    // Terminal state reached
+    
     return {
       status:          result.status,
       stdout:          result.stdout          || '',
@@ -76,7 +73,7 @@ exports.runCode = async ({ source_code, language, stdin = '', expected_output = 
       compile_output:  result.compile_output  || '',
       time:            result.time            || null,
       memory:          result.memory          || null,
-      // passed = true only when Accepted AND we had an expected_output to compare
+      
       passed: expected_output
         ? statusId === STATUS.ACCEPTED
         : null,

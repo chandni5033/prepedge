@@ -126,7 +126,7 @@ exports.setPassword = async (req, res, next) => {
     if (user.password)
       return res.status(400).json({ message: 'Use change password instead' });
 
-    user.password = newPassword; // pre('save') hook hashes this — do not hash manually here
+    user.password = newPassword; 
     await user.save();
     res.json({ message: 'Password set successfully. You can now login with email.' });
   } catch (err) {

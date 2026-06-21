@@ -12,7 +12,7 @@ const CATEGORY_MAP = {
 
 const chat = async (prompt) => {
   const response = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',   // free, very capable
+    model: 'llama-3.3-70b-versatile',   
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
     max_tokens: 2048,
@@ -20,7 +20,7 @@ const chat = async (prompt) => {
   return response.choices[0].message.content.trim();
 };
 
-// Clean response — remove markdown code fences if model adds them
+
 const parseJSON = (text) => {
   const clean = text.replace(/```json|```/g, '').trim();
   return JSON.parse(clean);
@@ -130,7 +130,7 @@ exports.generateReport = async ({ category, difficulty, answers, totalQuestions 
   const total = totalQuestions || answers.length;
   const skipped = total - answers.length;
 
-  // Build summary including skipped questions so the AI penalises them
+ 
   const summary = answers.map((a, i) =>
     `Q${i + 1}: ${a.questionText}\nScore: ${a.score}/10\nWeaknesses: ${a.weaknesses?.join(', ')}`
   ).join('\n\n');
@@ -164,7 +164,7 @@ Return ONLY valid JSON, no markdown:
   return parseJSON(text);
 };
 
-// Generates a 15-question mixed-difficulty multiple-choice quiz for a topic.
+
 exports.generateQuiz = async ({ category }) => {
   const prompt = `
 You are a technical quiz designer creating a practice quiz for: ${CATEGORY_MAP[category]}.
@@ -189,8 +189,7 @@ Return ONLY a valid JSON array, no markdown, no explanation outside the JSON:
   const text = await chat(prompt);
   const questions = parseJSON(text);
 
-  // Defensive validation — reject malformed AI output rather than silently
-  // storing broken quiz data (e.g. an option count mismatch breaks the UI).
+  
   questions.forEach((q, i) => {
     if (!Array.isArray(q.options) || q.options.length !== 4)
       throw new Error(`Quiz question ${i + 1} does not have exactly 4 options`);

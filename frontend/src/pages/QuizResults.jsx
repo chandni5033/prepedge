@@ -8,9 +8,6 @@ export default function QuizResults() {
   const [error,  setError ] = useState('');
 
   useEffect(() => {
-    // Re-finishing is idempotent on the backend (just re-saves the same state),
-    // so calling it again here is safe even if QuizSession already called it —
-    // this lets the results page work standalone too (e.g. on refresh).
     api.post(`/quiz/${id}/finish`)
       .then(r => setResult(r.data))
       .catch(() => setError('Could not load quiz results.'));

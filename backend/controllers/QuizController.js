@@ -14,8 +14,7 @@ exports.createQuiz = async (req, res, next) => {
       status:   'in_progress',
     });
 
-    // Don't leak correctIndex/explanation to the client until after they answer —
-    // otherwise a user could read devtools network tab and see every answer upfront.
+    
     const safeQuestions = quiz.questions.map(q => ({
       _id:          q._id,
       questionText: q.questionText,
@@ -30,8 +29,6 @@ exports.createQuiz = async (req, res, next) => {
 };
 
 // POST /api/quiz/:id/answer  { questionId, selectedIndex }
-// Records the selected answer. Does NOT reveal correctness — results are
-// only shown after the quiz is finished, via /finish.
 exports.answerQuestion = async (req, res, next) => {
   try {
     const quiz = await Quiz.findOne({ _id: req.params.id, userId: req.user.id });
@@ -44,16 +41,14 @@ exports.answerQuestion = async (req, res, next) => {
     question.userAnswerIndex = selectedIndex;
     await quiz.save();
 
-    // Deliberately NOT returning correct/correctIndex/explanation here —
-    // results are only revealed on the final report after Finish Quiz,
-    // so the answer key can't be read from the Network tab mid-quiz.
+    
     res.json({ recorded: true, questionId, selectedIndex });
   } catch (err) {
     next(err);
   }
 };
 
-// POST /api/quiz/:id/finish — scores the quiz based on answers recorded so far
+// POST /api/quiz/:id/finish
 exports.finishQuiz = async (req, res, next) => {
   try {
     const quiz = await Quiz.findOne({ _id: req.params.id, userId: req.user.id });
@@ -63,7 +58,7 @@ exports.finishQuiz = async (req, res, next) => {
       q => q.userAnswerIndex !== null && q.userAnswerIndex === q.correctIndex
     ).length;
 
-    quiz.score       = correctCount; // out of 15
+    quiz.score       = correctCount; 
     quiz.status       = 'completed';
     quiz.completedAt  = new Date();
     await quiz.save();

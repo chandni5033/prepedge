@@ -15,13 +15,13 @@ const combinedReportSchema = new mongoose.Schema({
   strengths:          [String],
   weaknesses:         [String],
   recommendations:    [String],
-  verdict:            String, // e.g. "Strong Hire", "Needs Improvement"
+  verdict:            String, 
 }, { _id: false });
 
 const roleAttemptSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true },
-  roleName: { type: String, required: true }, // denormalised for easy display in history
+  roleName: { type: String, required: true }, 
   rounds:   [roundProgressSchema],
   status:   { type: String, enum: ['in_progress', 'completed'], default: 'in_progress' },
   combinedReport: combinedReportSchema,

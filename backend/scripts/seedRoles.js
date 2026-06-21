@@ -1,4 +1,3 @@
-// One-time / re-runnable seed script for Role documents.
 // Usage: node scripts/seedRoles.js
 require('dotenv').config();
 const mongoose = require('mongoose');

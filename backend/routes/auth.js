@@ -16,7 +16,7 @@ router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
-// ✅ Fix: separate the two middlewares properly
+
 router.get('/google/callback',
   (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user) => {
@@ -30,7 +30,7 @@ router.get('/google/callback',
 
       req.user = user;
 
-      next(); // ← THIS IS MISSING
+      next(); 
     })(req, res, next);
   },
   ctrl.googleCallback

@@ -14,13 +14,13 @@ exports.listRoles = async (req, res, next) => {
   }
 };
 
-// POST /api/roles/:slug/start — begin (or resume) a role attempt
+// POST /api/roles/:slug/start
 exports.startRoleAttempt = async (req, res, next) => {
   try {
     const role = await Role.findOne({ slug: req.params.slug, active: true });
     if (!role) return res.status(404).json({ message: 'Role not found' });
 
-    // Resume an existing in-progress attempt for this role instead of creating a duplicate
+    
     let attempt = await RoleAttempt.findOne({
       userId: req.user.id, roleId: role._id, status: 'in_progress',
     });
@@ -37,7 +37,7 @@ exports.startRoleAttempt = async (req, res, next) => {
             label:      r.label,
             category:   r.category,
             difficulty: r.difficulty,
-            status:     i === 0 ? 'unlocked' : 'locked', // only round 1 starts unlocked
+            status:     i === 0 ? 'unlocked' : 'locked', 
           })),
       });
     }
@@ -72,7 +72,6 @@ exports.listMyAttempts = async (req, res, next) => {
 };
 
 // POST /api/roles/attempts/:attemptId/rounds/:order/begin
-// Creates the actual Interview for an unlocked round and links it.
 exports.beginRound = async (req, res, next) => {
   try {
     const attempt = await RoleAttempt.findOne({ _id: req.params.attemptId, userId: req.user.id });
@@ -85,13 +84,13 @@ exports.beginRound = async (req, res, next) => {
     if (round.status === 'locked')
       return res.status(403).json({ message: 'Complete the previous round first' });
 
-    // Already started — just return the existing interview rather than creating a new one
+    
     if (round.interviewId) {
       const interview = await Interview.findById(round.interviewId).populate('questions');
       return res.json({ interview, questions: interview.questions });
     }
 
-    // Avoid repeating questions the user has seen before, same as the practice-mode flow
+    
     const pastInterviews = await Interview.find({ userId: req.user.id }).select('questions');
     const seenIds = pastInterviews.flatMap(i => i.questions.map(q => q.toString()));
 
@@ -126,8 +125,7 @@ exports.beginRound = async (req, res, next) => {
 };
 
 // POST /api/roles/attempts/:attemptId/rounds/:order/complete
-// Called after the underlying Interview is finished (via the normal /interview/finish route).
-// Marks the round complete and unlocks the next one.
+
 exports.completeRound = async (req, res, next) => {
   try {
     const attempt = await RoleAttempt.findOne({ _id: req.params.attemptId, userId: req.user.id });
@@ -145,7 +143,7 @@ exports.completeRound = async (req, res, next) => {
 
     round.status = 'completed';
 
-    // Unlock the next round, if any
+    
     const next_ = attempt.rounds.find(r => r.order === order + 1);
     if (next_ && next_.status === 'locked') next_.status = 'unlocked';
 
@@ -157,7 +155,7 @@ exports.completeRound = async (req, res, next) => {
 };
 
 // POST /api/roles/attempts/:attemptId/finish
-// All rounds must be completed. Aggregates each round's report into one combined report.
+
 exports.finishRoleAttempt = async (req, res, next) => {
   try {
     const attempt = await RoleAttempt.findOne({ _id: req.params.attemptId, userId: req.user.id });
@@ -182,7 +180,7 @@ exports.finishRoleAttempt = async (req, res, next) => {
       (perRoundScores.reduce((sum, r) => sum + r.score, 0) / perRoundScores.length).toFixed(1)
     );
 
-    // Merge strengths/weaknesses/recommendations across all round reports
+    
     const allStrengths  = interviews.flatMap(i => i.report?.strengths || []);
     const allWeaknesses = interviews.flatMap(i => i.report?.weaknesses || []);
     const allRecs        = interviews.flatMap(i => i.report?.recommendations || []);

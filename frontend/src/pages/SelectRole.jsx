@@ -13,7 +13,7 @@ export default function SelectRole() {
   const navigate = useNavigate();
   const [roles,   setRoles  ] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [starting,setStarting] = useState(null); // slug currently being started
+  const [starting,setStarting] = useState(null); 
   const [error,   setError  ] = useState('');
 
   useEffect(() => {
