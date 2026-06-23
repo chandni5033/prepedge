@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 
 const CATEGORIES = ['all', 'dsa', 'webdev', 'ml', 'cs'];
-const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS' };
+const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS' , hr: 'HR / Behavioral' };
 const CATEGORY_COLORS = {
   dsa:    'bg-indigo-100 text-indigo-700',
   webdev: 'bg-blue-100 text-blue-700',
   ml:     'bg-purple-100 text-purple-700',
   cs:     'bg-green-100 text-green-700',
+  hr:     'bg-pink-100 text-pink-700',
 };
 
 export default function History() {

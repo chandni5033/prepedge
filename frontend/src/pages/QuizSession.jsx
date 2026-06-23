@@ -5,7 +5,7 @@ import api from '../services/api';
 const LETTERS = ['A', 'B', 'C', 'D'];
 const SECONDS_PER_QUESTION = 30;
 
-const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Development', ml: 'Machine Learning', cs: 'CS Fundamentals' };
+const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Development', ml: 'Machine Learning', cs: 'CS Fundamentals' , hr: 'HR / Behavioral' };
 const DIFFICULTY_STYLE = {
   easy:   'bg-green-100 text-green-700',
   medium: 'bg-yellow-100 text-yellow-700',

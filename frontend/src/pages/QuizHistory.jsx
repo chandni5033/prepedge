@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 
-const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Development', ml: 'Machine Learning', cs: 'CS Fundamentals' };
+const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Development', ml: 'Machine Learning', cs: 'CS Fundamentals' , hr: 'HR / Behavioral' };
 const CATEGORY_COLORS = {
   dsa:    'bg-indigo-100 text-indigo-700',
   webdev: 'bg-blue-100 text-blue-700',
   ml:     'bg-purple-100 text-purple-700',
   cs:     'bg-green-100 text-green-700',
+  hr:     'bg-pink-100 text-pink-700',
 };
 
 export default function QuizHistory() {

@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import api from '../services/api';
 
-const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS Fundamentals' };
+const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS Fundamentals' , hr: 'HR / Behavioral' };
 
 const RESOURCE_MAP = {
   monitor:       { label: 'Learn Monitors',            url: 'https://en.wikipedia.org/wiki/Monitor_(synchronization)' },

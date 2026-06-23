@@ -6,12 +6,13 @@ import {
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 
-const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS Fundamentals' };
+const CATEGORY_LABELS = { dsa: 'DSA', webdev: 'Web Dev', ml: 'ML', cs: 'CS Fundamentals', hr: 'HR / Behavioral' };
 const CATEGORY_COLORS_MAP = {
   dsa:    '#6366f1',
   webdev: '#3b82f6',
   ml:     '#a855f7',
   cs:     '#10b981',
+  hr:     '#ec4899',
 };
 const BAR_COLORS = ['#6366f1', '#3b82f6', '#a855f7', '#10b981', '#f59e0b', '#ef4444'];
 
