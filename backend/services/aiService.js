@@ -26,7 +26,11 @@ const parseJSON = (text) => {
   return JSON.parse(clean);
 };
 
-exports.generateQuestions = async ({ category, difficulty, count }) => {
+exports.generateQuestions = async ({ category, difficulty, count, previousTexts = [] }) => {
+  const avoidSection = previousTexts.length > 0
+    ? `\n\nDo NOT ask any of these questions which the candidate has already been asked:\n${previousTexts.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n`
+    : '';
+
   if (category === 'hr') {
     const prompt = `
 You are a senior HR interviewer at a top tech company.
@@ -37,8 +41,7 @@ Rules:
   failure/learning, time management, motivation, ambiguity, ownership).
 - Questions should be open-ended, the kind that invite a STAR-style (Situation, Task, Action,
   Result) answer — not yes/no, not technical.
-- Do NOT include answers.
-
+- Do NOT include answers.${avoidSection}
 Return ONLY a valid JSON array, no markdown, no explanation:
 [
   {
@@ -58,8 +61,7 @@ Generate exactly ${count} unique ${difficulty}-level interview questions for: ${
 Rules:
 - Each question must test a different concept.
 - Questions should be practical and commonly asked in real interviews.
-- Do NOT include answers.
-
+- Do NOT include answers.${avoidSection}
 Return ONLY a valid JSON array, no markdown, no explanation:
 [
   {
@@ -130,7 +132,7 @@ exports.generateReport = async ({ category, difficulty, answers, totalQuestions 
   const total = totalQuestions || answers.length;
   const skipped = total - answers.length;
 
- 
+  
   const summary = answers.map((a, i) =>
     `Q${i + 1}: ${a.questionText}\nScore: ${a.score}/10\nWeaknesses: ${a.weaknesses?.join(', ')}`
   ).join('\n\n');
@@ -165,7 +167,11 @@ Return ONLY valid JSON, no markdown:
 };
 
 
-exports.generateQuiz = async ({ category }) => {
+exports.generateQuiz = async ({ category, previousTexts = [] }) => {
+  const avoidSection = previousTexts.length > 0
+    ? `\n\nDo NOT include any of these questions which this user has already seen:\n${previousTexts.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n`
+    : '';
+
   const prompt = `
 You are a technical quiz designer creating a practice quiz for: ${CATEGORY_MAP[category]}.
 
@@ -173,8 +179,7 @@ Generate exactly 15 multiple-choice questions with a MIXED difficulty spread:
 - Approximately 5 easy, 6 medium, 4 hard questions (don't group them by difficulty in the array order — interleave them).
 - Each question must have exactly 4 options, only one correct.
 - Cover a broad range of subtopics within ${CATEGORY_MAP[category]}, don't repeat the same concept twice.
-- Include a short explanation (1-2 sentences) for why the correct answer is correct.
-
+- Include a short explanation (1-2 sentences) for why the correct answer is correct.${avoidSection}
 Return ONLY a valid JSON array, no markdown, no explanation outside the JSON:
 [
   {

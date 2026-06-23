@@ -5,7 +5,19 @@ const aiService  = require('../services/aiService');
 exports.createQuiz = async (req, res, next) => {
   try {
     const { category } = req.body;
-    const questions = await aiService.generateQuiz({ category });
+
+    
+    const pastQuizzes = await Quiz.find({
+      userId: req.user.id,
+      category,
+      status: 'completed',
+    }).select('questions').limit(5);
+
+    const recentTexts = pastQuizzes
+      .flatMap(q => q.questions.map(qq => qq.questionText))
+      .slice(-30);
+
+    const questions = await aiService.generateQuiz({ category, previousTexts: recentTexts });
 
     const quiz = await Quiz.create({
       userId:   req.user.id,
@@ -14,7 +26,6 @@ exports.createQuiz = async (req, res, next) => {
       status:   'in_progress',
     });
 
-    
     const safeQuestions = quiz.questions.map(q => ({
       _id:          q._id,
       questionText: q.questionText,
@@ -41,7 +52,6 @@ exports.answerQuestion = async (req, res, next) => {
     question.userAnswerIndex = selectedIndex;
     await quiz.save();
 
-    
     res.json({ recorded: true, questionId, selectedIndex });
   } catch (err) {
     next(err);
@@ -58,7 +68,7 @@ exports.finishQuiz = async (req, res, next) => {
       q => q.userAnswerIndex !== null && q.userAnswerIndex === q.correctIndex
     ).length;
 
-    quiz.score       = correctCount; 
+    quiz.score       = correctCount;
     quiz.status       = 'completed';
     quiz.completedAt  = new Date();
     await quiz.save();

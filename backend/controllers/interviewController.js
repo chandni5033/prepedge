@@ -5,13 +5,22 @@ const aiService = require('../services/aiService');
 exports.createInterview = async (req, res) => {
   const { category, difficulty, numQuestions = 5, mode = 'text' } = req.body;
 
-  // Fetch IDs of questions already seen by this user (avoid repeats)
-  const pastInterviews = await Interview.find({ userId: req.user.id }).select('questions');
-  const seenIds = pastInterviews.flatMap(i => i.questions.map(q => q.toString()));
+  
+  const pastInterviews = await Interview.find({
+    userId: req.user.id,
+    category,           
+    status: 'completed',
+  }).select('questions').limit(10);
 
-  // Generate questions via AI
+  const seenQuestionIds = pastInterviews.flatMap(i => i.questions.map(q => q.toString()));
+  const seenQuestions = seenQuestionIds.length > 0
+    ? await Question.find({ _id: { $in: seenQuestionIds.slice(-30) } }).select('questionText')
+    : [];
+  const recentTexts = seenQuestions.map(q => q.questionText);
+
+  // Generate questions via AI — pass previous question texts so LLM can avoid repeats
   const rawQuestions = await aiService.generateQuestions({
-    category, difficulty, count: numQuestions, previousIds: seenIds.slice(-20),
+    category, difficulty, count: numQuestions, previousTexts: recentTexts,
   });
 
   // Save questions to DB

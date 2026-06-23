@@ -14,7 +14,7 @@ exports.listRoles = async (req, res, next) => {
   }
 };
 
-// POST /api/roles/:slug/start
+// POST /api/roles/:slug/start — begin (or resume) a role attempt
 exports.startRoleAttempt = async (req, res, next) => {
   try {
     const role = await Role.findOne({ slug: req.params.slug, active: true });
@@ -37,7 +37,7 @@ exports.startRoleAttempt = async (req, res, next) => {
             label:      r.label,
             category:   r.category,
             difficulty: r.difficulty,
-            status:     i === 0 ? 'unlocked' : 'locked', 
+            status:     i === 0 ? 'unlocked' : 'locked', // only round 1 starts unlocked
           })),
       });
     }
@@ -72,6 +72,7 @@ exports.listMyAttempts = async (req, res, next) => {
 };
 
 // POST /api/roles/attempts/:attemptId/rounds/:order/begin
+
 exports.beginRound = async (req, res, next) => {
   try {
     const attempt = await RoleAttempt.findOne({ _id: req.params.attemptId, userId: req.user.id });
@@ -91,14 +92,23 @@ exports.beginRound = async (req, res, next) => {
     }
 
     
-    const pastInterviews = await Interview.find({ userId: req.user.id }).select('questions');
-    const seenIds = pastInterviews.flatMap(i => i.questions.map(q => q.toString()));
+    const pastInterviews = await Interview.find({
+      userId: req.user.id,
+      category: round.category,
+      status: 'completed',
+    }).select('questions').limit(10);
+
+    const seenQuestionIds = pastInterviews.flatMap(i => i.questions.map(q => q.toString()));
+    const seenQuestions = seenQuestionIds.length > 0
+      ? await Question.find({ _id: { $in: seenQuestionIds.slice(-30) } }).select('questionText')
+      : [];
+    const recentTexts = seenQuestions.map(q => q.questionText);
 
     const rawQuestions = await aiService.generateQuestions({
       category:   round.category,
       difficulty: round.difficulty,
       count:      5,
-      previousIds: seenIds.slice(-20),
+      previousTexts: recentTexts,
     });
 
     const savedQuestions = await Question.insertMany(
