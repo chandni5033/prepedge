@@ -41,7 +41,7 @@ export default function Login() {
           to="/"
           className="text-2xl font-bold text-indigo-600"
         >
-          InterviewForge
+          PrepEdge
         </Link>
 
         <Link

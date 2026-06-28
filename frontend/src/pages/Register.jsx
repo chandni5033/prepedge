@@ -43,7 +43,7 @@ export default function Register() {
           to="/"
           className="text-2xl font-bold text-indigo-600"
         >
-          InterviewForge
+          PrepEdge
         </Link>
 
         <Link

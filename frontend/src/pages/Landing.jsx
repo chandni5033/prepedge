@@ -22,7 +22,7 @@ export default function Landing() {
     <div className="min-h-screen bg-white">
       {/* Navbar */}
       <nav className="flex items-center justify-between px-8 py-4 border-b">
-        <span className="text-xl font-bold text-indigo-600">InterviewForge</span>
+        <span className="text-xl font-bold text-indigo-600">PrepEdge</span>
         <div className="flex gap-3">
           {user ? (
             <Link to="/dashboard" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
@@ -97,7 +97,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="text-center py-6 text-sm text-gray-400 border-t">
-        © 2025 InterviewForge. Built with ❤️ for students.
+        © 2025 PrepEdge. Built with ❤️ for students.
       </footer>
     </div>
   );
