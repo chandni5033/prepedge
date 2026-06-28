@@ -5,7 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing        from './pages/Landing';
 import Login          from './pages/Login';
 import Register       from './pages/Register';
-import AuthCallback   from './pages/AuthCallback';   // handles ?token= from Google OAuth
+import AuthCallback   from './pages/AuthCallback';   
 import Dashboard      from './pages/Dashboard';
 import CreateInterview from './pages/CreateInterview';
 import InterviewSession from './pages/InterviewSession';

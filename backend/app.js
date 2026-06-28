@@ -5,6 +5,7 @@ const passport = require('passport');
 require('./config/passport');
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet());
 const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173'].filter(Boolean);
