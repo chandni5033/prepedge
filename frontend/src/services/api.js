@@ -1,21 +1,42 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL + '/api' });
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL + '/api',
+});
 
-api.interceptors.request.use(cfg => {
+
+api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });
 
 api.interceptors.response.use(
-  r => r,
-  err => {
-    if (err.response?.status === 401) {
+  response => response,
+
+  error => {
+    const status = error.response?.status;
+    const url = error.config?.url || '';
+
+    
+    const isAuthRequest =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register');
+
+    if (status === 401 && !isAuthRequest) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+
+      
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 
